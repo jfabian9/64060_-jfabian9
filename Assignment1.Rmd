@@ -1,0 +1,26 @@
+---
+output:
+  word_document: default
+  html_document: default
+---
+#https://www.kaggle.com/datasets/brandonqilin/chipotle-usa-menu-nutrition-dataset
+#Shorten data into 2nd csv
+library(readr)
+setwd("~/Downloads")
+chipotle_1 <- read_csv("chipotle 1.csv")
+View(chipotle_1)
+
+summary(chipotle_1)
+chipotle_1$`Protein (g)`/2
+"Total Calories (cal)" <- chipotle_1$`Total Calories (cal)`
+"Protein(g)" <- chipotle_1$`Protein (g)`
+
+barplot(`Protein(g)`, names=c("Barbacoa", "Chicken","Carnitas","Steak"),  
+  xlab = "Menu Item", ylab = "Protein(g)", ylim=c(2,40))
+  
+plot(`Protein(g)`, `Total Calories (cal)`, 
+     xlim =c(2,40), ylim=c(50,400), title(main="Chipotle"))
+text(chipotle_1$`Protein (g)`, chipotle_1$`Total Calories (cal)`, 
+     labels = chipotle_1$`Menu Item`, pos = 4)
+     
+     
