@@ -1,0 +1,141 @@
+------------------------------------------------------------------------
+
+title: "Assignment 2" author: "Jacob Fabian" date: "2022-10-01" output: html_document
+
+###How would this customer need to be classified?
+
+```{r}
+###Load Data
+setwd("~/Downloads")
+bank = read.csv("UniversalBank.csv")
+```
+
+```{r}
+###Dummy Varriables
+bank$Education = as.factor(bank$Education)
+
+bank_dummy<-bank[ ,-c(1,5)]
+bank_dummy$Personal.Loan = as.factor(bank_dummy$Personal.Loan)
+bank_dummy$CCAvg = as.integer(bank_dummy$CCAvg)
+set.seed(1)
+train.index <- sample(row.names(bank_dummy), 0.6*dim(bank_dummy)[1])
+test.index <- setdiff(row.names(bank_dummy), train.index)
+train.df <- bank_dummy[train.index, ]
+valid.df <- bank_dummy[test.index, ]
+```
+
+```{r}
+###New Customer
+new.cust <- data.frame(Age = 40,                
+                       Experience = 10,    
+                       Income = 84,  
+                       Family = 2,          
+                       CCAvg = 2,          
+                       Education = 2,        
+                       Mortgage = 0,          
+                       Securities.Account = 0,
+                       CD.Account = 0,
+                       Online = 1,            
+                       CreditCard = 1)
+```
+
+```{r}
+###knn
+new.cust$Education <- as.factor(new.cust$Education)
+
+train.norm.df <- train.df[,-8]
+valid.norm.df <- valid.df[,-8]
+
+new.cust.norm <- new.cust
+norm.values <- preProcess(train.df[, -8], method=c("center", "scale"))
+train.norm.df <- predict(norm.values, train.df[, -8])
+valid.norm.df <- predict(norm.values, valid.df[, -8])
+new.cust.norm <- predict(norm.values, new.cust.norm)
+knn.pred <- class::knn(train = train.norm.df,
+                       test = new.cust.norm,
+                       cl = train.df$Personal.Loan, k = 1)
+```
+
+```{r}
+###Prediction
+knn.pred
+knn.pred[3]
+
+```
+
+###The customer will be classified as zero since the nearest neighbors are classified as zero.
+
+```{r}
+library(class)
+accuracy.df <- data.frame(k = seq(1, 14, 1), accuracy = rep(0, 14))
+for(i in 1:14) {
+ knn.2 <- knn(train = train.df[,-8],test = valid.df[,-8], cl = train.df[,8], k=i, prob=TRUE)
+ accuracy.df[i, 2] <- confusionMatrix(knn.2, valid.df[,8])$overall[1]
+}
+accuracy.df
+
+```
+
+###The best choice of k is 3
+
+###Confusion Matrix for 3
+
+```{r}
+knn.3 <- knn(train = train.df[,-8],test = valid.df[,-8], cl = train.df[,8], k=3, prob=TRUE)
+confusionMatrix(knn.3, valid.df[,8])
+```
+
+```{r}
+library(class)
+customer.df= data.frame(Age = 40, Experience = 10, Income = 84, Family = 2, CCAvg = 2, Education_1 = 0, Education_2 = 1, Education_3 = 0, Mortgage = 0, Securities.Account = 0, CD.Account = 0, Online = 1, CreditCard = 1)
+knn.4 <- knn(train = train.df[,-8],test = valid.df[,-8], cl = train.df[,8], k=3, prob=TRUE)
+head(knn.4)
+```
+
+###New Loan Accepted
+
+```{r}
+Test.1 = createDataPartition(bank$Age, p= 0.2 , list=FALSE)  
+TD1  = bank [Test.1,]
+Rem.d = bank[-Test.1,]
+TI1 = createDataPartition(Rem.d$Age, p= 0.5 , list=FALSE)
+TD1 = Rem.d[TI1,]
+VD1 = Rem.d[-TI1,]
+TND1 <- TD1
+VND1 <- VD1
+TND1 <- TD1
+rem_data.norm.df_1 <- Rem.d
+norm.values_1 <- preProcess(Train_Data_1[-8], method=c("center", "scale"))
+TND1[-8] <- predict(norm.values_1, Train_Data_1[-8])
+VND1[-8] <- predict(norm.values_1, Validation_Data_1[-8])
+TND1[-8] <- predict(norm.values_1, TND1[-8]) 
+TND1[-8] <- predict(norm.values_1, TD1[-8])
+rem_data.norm.df_1[-8] <- predict(norm.values_1,Rem.d[-8])
+head(TND1)
+```
+```{r}
+set.seed(2019)
+prediction_Q5 <- knn(train = TND1[,-8], test = VND1[,-8], 
+          cl = TND1[,8], k = 3, prob=TRUE) 
+actual= VND1$Personal.Loan
+prediction_prob = attr(prediction_Q5,"prob")
+table(prediction_Q5,actual)
+mean(prediction_Q5==actual)
+```
+
+
+```{r}
+set.seed(2019)
+prediction_Q5 <- knn(train = rem_data.norm.df_1[,-8], test = TND1[,-8], 
+          cl = rem_data.norm.df_1[,8], k = 3, prob=TRUE) 
+actual= TND1$Personal.Loan
+prediction_prob = attr(prediction_Q5,"prob")
+table(prediction_Q5,actual)
+mean(prediction_Q5==actual)  
+```
+
+#####The test set preformed better with 80% of the data, verses the training data that only used 50% of the data. The predictions are close but seems with more data then the formula runs better.
+
+
+
+
