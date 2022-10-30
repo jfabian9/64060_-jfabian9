@@ -1,0 +1,100 @@
+---
+title: "Assignment 4"
+author: "Jacob Fabian"
+date: "2022-10-29"
+output:
+  pdf_document: default
+  html_document: default
+---
+
+```{r}
+library(readr)
+library(cluster)
+```
+
+
+
+```{r}
+Pharmaceuticals_1_ <- read_csv("Pharmaceuticals (1).csv")
+View(Pharmaceuticals_1_)
+head(Pharmaceuticals_1_)
+```
+
+
+
+```{r}
+p1 <- Pharmaceuticals_1_[,3:11]
+head(p1)
+```
+
+
+```{r}
+ps <- scale(p1)
+head(ps)
+```
+
+```{r}
+wss <- (nrow(Pharmaceuticals_1_)-1)*sum(apply(ps,2,var))
+wss
+```
+
+```{r}
+library(stats)
+for (i in 2:15) wss[i] <- sum(kmeans(ps,centers=i)$withinss)
+wss
+```
+
+```{r}
+plot(1:15, wss, type="b", xlab="Number of Clusters",ylab="Within groups sum of squares")
+```
+
+```{r}
+fit <- kmeans(ps, 5)
+aggregate(ps, by=list (fit$cluster), FUN=mean)
+```
+
+```{r}
+ps1 <- data.frame(ps, fit$cluster)
+ps1
+```
+
+```{r}
+clusplot(ps,fit$cluster, color=TRUE, shade=TRUE, labels=2, lines=0)
+```
+
+###Cluster 1 - Row 11,17
+
+###Cluster 2 - Row 2,6,18
+
+###Cluster 3 - Row 1,3,7,9,16,21
+
+###Cluster 4 - Row 5,8,9,12,14,20
+
+###Cluster 5 - Row 4,13,15
+
+###Due to the aggregate(ps,by=list(fit$cluster),FUN=mean)
+
+###Cluster 1 has highest Net Profit Margin, lowest Beta, PE Ratio, and Rev growth.
+
+###Cluster 2 has highest Beta, Leverage, Rev growth and the lowest Market Cap
+
+###Cluster 3 has lowest Leverage.
+
+###Cluster 4 has highest PE ratio, lowest ROE, ROA, Asset Turnover, and Net Profit Margin
+
+###Cluster 5 has highest Market Cap, ROE, ROA, and Asset Turnover
+
+
+###There is pattern in the clusters. Cluster 4 with highest PE ratio, lowest ROE, ROA, Asset Turnover, Net Profit Margin has a Hold recommendation.Cluster 5 with highest Market Cap, ROE, ROA, and Asset Turnover has a buy recommendation. 
+
+###We can name various clusters 
+###Cluster 1 - High Net Profit Margin, Low Beta, PE Ratio, Rev growth cluster
+
+###Cluster 2 - High Beta, Leverage, Rev growth and Low Market Cap cluster
+
+###Cluster 3 - Lowest Leverage cluster
+
+###Cluster 4 - High PE ratio, Low ROE, ROA, Asset Turnover, Net Profit Margin Cluster
+
+###Cluster 5 - High Market Cap, ROE, ROA, Asset Turnover cluster
+
