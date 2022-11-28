@@ -1,0 +1,84 @@
+---
+title: "Untitled"
+author: "Jacob Fabian"
+date: "2022-11-25"
+output:
+  pdf_document: default
+  html_document: default
+---
+
+
+```{r}
+library(readr)
+library(cluster) 
+library(dplyr)
+setwd("~/Downloads")
+```
+
+```{r}
+Cereals <- read_csv("Cereals.csv")
+View(Cereals)
+```
+
+```{r}
+head(Cereals) 
+Cereals <- na.omit(Cereals)
+head(Cereals)
+```
+
+```{r}
+Cereals.norm <- Cereals %>%
+    as_tibble() %>%
+    mutate(across(where(is.numeric), scale))
+```
+
+```{r}
+distance <- dist(Cereals.norm[4:16], method = "euclidean")
+hc_single <- agnes(Cereals.norm[4:16], method = "single")
+hc_complete <- agnes(Cereals.norm[4:16], method = "complete")
+hc_average <- agnes(Cereals.norm[4:16], method = "average")
+hc_ward <- agnes(Cereals.norm[4:16], method = "ward")
+```
+
+```{r}
+print(hc_single)
+print(hc_complete)
+print(hc_average)
+print(hc_ward)
+```
+###The highest coefficient will be the best method
+
+### Single - 0.607
+### Compete - 0.835
+### Average - 0.777
+### Ward - 0.904
+
+### Since Ward has the highest coefficient we will look at that
+
+```{r}
+pltree(hc_ward, cex = 0.6, hang = -1, main = "Dendrogram of agnes")
+```
+
+
+```{r}
+plot(hc_ward)
+rect.hclust(hc_ward, k = 6, border = 1:6)
+```
+
+### 6 Clusters would be the best
+
+```{r}
+model <- kmeans(Cereals.norm[4:16], centers = 6, nstart = 25)
+100 * model$betweenss / model$totss
+```
+### 58.63% stay in their cluster.
+```{r}
+cl <- kmeans(Cereals[4:12], centers = 6, nstart = 25)
+Cereals <- data.frame(Cereals, cl$cluster)
+cl$centers
+```
+
+### The data should be standardized since when it comes to what we eat, we should value what we put into our body. Cluster 1 is probably the most healthy, since it is high in protien, fiber, potassium and higher in vitamins. And less carboydrates and low calories.
+
+
+
