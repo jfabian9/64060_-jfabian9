@@ -1,0 +1,27 @@
+---
+title: "Final"
+author: "Jacob Fabian"
+date: "2022-12-10"
+output: html_document
+---
+### A liqour distributor in the USA wants to know between the Bahamas, Canada, Mexico, Panama, and the USA which country needs Beer, Wine and Spirits.
+
+```{r}
+library(readr)
+drinks <- read_csv("Desktop/FUNDAMENTALS OF MACHINE LEARNING/drinks.csv")
+View(drinks)
+"beer servings" <- drinks$beer_servings.
+"country" <- drinks$country.
+"wine servings" <- drinks$wine_servings
+"spirit servings" <- drinks$spirit_servings
+```
+```{r}
+"country" <- drinks$country
+"beer servings" <- drinks$beer_servings
+barplot(`beer servings`, names=c("Bahamas", "Canada", "Mexico", "Panama", "USA"),
+        xlab = "Country", ylab = "Beer Servings (L)", ylim = c(5,400))
+barplot(`wine servings`, names=c("Bahamas", "Canada", "Mexico", "Panama", "USA"),
+        xlab = "Country", ylab = "Wine Servings (L)", ylim = c(5,400))
+barplot(`spirit servings`, names=c("Bahamas", "Canada", "Mexico", "Panama", "USA"),
+        xlab = "Country", ylab = "Spirit Servings (L)", ylim = c(5,400))
+```
